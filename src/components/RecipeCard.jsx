@@ -1,95 +1,154 @@
 import { useState } from "react";
 import IngredientList from "./IngredientList";
 
-function RecipeCard({ recipe, isSaved, onToggleSave, onOpenCookMode }) {
-  const { id, name, category, time, image, ingredients, veg, calories } = recipe;
-  const [tilt, setTilt] = useState({ rx: 0, ry: 0, gx: 50, gy: 50 });
+function RecipeCard({
+  recipe,
+  matchScore,
+  language,
+  isSaved,
+  onToggleSave,
+  onOpenCookMode
+}) {
+  const {
+    id,
+    name,
+    tamilName,
+    category,
+    time,
+    image,
+    ingredients,
+    veg,
+    calories,
+    costInr,
+    macros,
+    steps,
+    tamilSteps
+  } = recipe;
 
-  const updateTilt = (clientX, clientY, target) => {
-    const rect = target.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-    const ry = ((x - rect.width / 2) / (rect.width / 2)) * 9;
-    const rx = ((rect.height / 2 - y) / (rect.height / 2)) * 9;
+  const [isFlipped, setIsFlipped] = useState(false);
 
-    setTilt({
-      rx: rx.toFixed(1),
-      ry: ry.toFixed(1),
-      gx: ((x / rect.width) * 100).toFixed(0),
-      gy: ((y / rect.height) * 100).toFixed(0)
-    });
-  };
-
-  const resetTilt = () => setTilt({ rx: 0, ry: 0, gx: 50, gy: 50 });
+  const displayTitle = language === "TA" && tamilName ? tamilName : name;
+  const previewStep =
+    language === "TA" && tamilSteps?.[0] ? tamilSteps[0] : steps?.[0];
 
   return (
-    <div className="card-stage">
-      <article
-        className="recipe-card"
-        onPointerMove={(e) => updateTilt(e.clientX, e.clientY, e.currentTarget)}
-        onPointerLeave={resetTilt}
-        onTouchMove={(e) => {
-          if (e.touches[0]) {
-            updateTilt(
-              e.touches[0].clientX,
-              e.touches[0].clientY,
-              e.currentTarget
-            );
-          }
-        }}
-        onTouchEnd={resetTilt}
-        onClick={() => onOpenCookMode(recipe)}
-        style={{
-          transform: `rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`
-        }}
-      >
+    <div className="flip-scene">
+      <article className={`flip-card ${isFlipped ? "is-flipped" : ""}`}>
+        {/* FRONT FACE */}
         <div
-          className="card-sheen"
-          style={{
-            background: `radial-gradient(circle at ${tilt.gx}% ${tilt.gy}%, rgba(255,255,255,0.22), transparent 60%)`
-          }}
-        />
+          className="flip-face flip-front"
+          onClick={() => onOpenCookMode(recipe)}
+        >
+          <div className="card-media">
+            <img src={image} alt={name} className="card-img" loading="lazy" />
 
-        <div className="card-media">
-          <img src={image} alt={name} className="card-img" loading="lazy" />
+            <div className="media-top">
+              <div className="left-badges">
+                <span className="cat-badge">{category}</span>
+                {matchScore > 0 && (
+                  <span className="match-badge">✨ {matchScore}% Match</span>
+                )}
+              </div>
 
-          <div className="media-top">
-            <span className="cat-badge">{category}</span>
+              <div className="card-actions-top">
+                <button
+                  type="button"
+                  className="flip-trigger-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsFlipped(true);
+                  }}
+                >
+                  ↻ Flip
+                </button>
 
-            <button
-              type="button"
-              className={`save-btn ${isSaved ? "saved" : ""}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleSave(id);
-              }}
-              aria-label={isSaved ? "Remove from saved" : "Save recipe"}
-            >
-              {isSaved ? "❤️" : "🤍"}
-            </button>
+                <button
+                  type="button"
+                  className={`save-btn ${isSaved ? "saved" : ""}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleSave(id);
+                  }}
+                  aria-label={isSaved ? "Remove from saved" : "Save recipe"}
+                >
+                  {isSaved ? "❤️" : "🤍"}
+                </button>
+              </div>
+            </div>
+
+            <div className="media-bottom">
+              <span className={`diet-tag ${veg ? "veg" : "nonveg"}`}>
+                <span className="diet-box">
+                  <span className="diet-dot"></span>
+                </span>
+                {veg ? "Veg" : "Non-veg"}
+              </span>
+
+              <div className="right-meta-pills">
+                <span className="cost-tag">~₹{costInr}</span>
+                <span className="time-tag">⏱ {time}m</span>
+              </div>
+            </div>
           </div>
 
-          <div className="media-bottom">
-            <span className={`diet-tag ${veg ? "veg" : "nonveg"}`}>
-              <span className="diet-box">
-                <span className="diet-dot"></span>
+          <div className="card-body">
+            <div className="card-subrow">
+              <span className="cal-text">
+                🔥 {calories} • P: {macros.protein}
               </span>
-              {veg ? "Veg" : "Non-veg"}
-            </span>
+              <span className="cook-link">Cook & Remix →</span>
+            </div>
 
-            <span className="time-tag">⏱ {time} mins</span>
+            <h2 className="card-title">{displayTitle}</h2>
+
+            <IngredientList ingredients={ingredients} />
           </div>
         </div>
 
-        <div className="card-body">
-          <div className="card-subrow">
-            <span className="cal-text">🔥 {calories}</span>
-            <span className="cook-link">Cook This →</span>
+        {/* BACK FACE (Nutrition Macros + First Step) */}
+        <div className="flip-face flip-back">
+          <div className="back-header">
+            <span className="cat-badge">{category}</span>
+            <button
+              type="button"
+              className="flip-trigger-btn"
+              onClick={() => setIsFlipped(false)}
+            >
+              ↺ Front
+            </button>
           </div>
 
-          <h2 className="card-title">{name}</h2>
+          <h3 className="back-title">{displayTitle}</h3>
 
-          <IngredientList ingredients={ingredients} />
+          <div className="back-stats-grid">
+            <div className="back-stat">
+              <span className="stat-num">{macros.protein}</span>
+              <span className="stat-lbl">Protein</span>
+            </div>
+            <div className="back-stat">
+              <span className="stat-num">{macros.carbs}</span>
+              <span className="stat-lbl">Carbs</span>
+            </div>
+            <div className="back-stat">
+              <span className="stat-num">{macros.fat}</span>
+              <span className="stat-lbl">Fat</span>
+            </div>
+          </div>
+
+          <div className="back-preview">
+            <p className="back-preview-label">
+              {language === "TA" ? "செய்முறை சுருக்கம்" : "Step 1 Preview"}
+            </p>
+            <p className="back-preview-text">{previewStep}</p>
+          </div>
+
+          <button
+            type="button"
+            className="back-cook-btn"
+            onClick={() => onOpenCookMode(recipe)}
+          >
+            Open Kitchen & Remix →
+          </button>
         </div>
       </article>
     </div>
