@@ -5,6 +5,8 @@ export const recipes = [
     category: "Breakfast",
     time: 30,
     veg: true,
+    calories: "320 kcal",
+    difficulty: "Medium",
     image:
       "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=900&q=80",
     ingredients: [
@@ -14,7 +16,8 @@ export const recipes = [
       "Mustard seeds & curry leaves",
       "Roasted chana dal",
       "Pure cow ghee"
-    ]
+    ],
+    tip: "Drizzle ghee around the edges on medium-high flame for a golden, lacy crunch."
   },
   {
     id: 2,
@@ -22,6 +25,8 @@ export const recipes = [
     category: "Main Course",
     time: 35,
     veg: true,
+    calories: "460 kcal",
+    difficulty: "Easy",
     image:
       "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=900&q=80",
     ingredients: [
@@ -31,7 +36,8 @@ export const recipes = [
       "Unsalted white butter",
       "Kasuri methi & garam masala",
       "Kashmiri red chili powder"
-    ]
+    ],
+    tip: "Soak paneer cubes in warm salted water for 10 minutes before simmering so they stay pillow-soft."
   },
   {
     id: 3,
@@ -39,6 +45,8 @@ export const recipes = [
     category: "Main Course",
     time: 45,
     veg: false,
+    calories: "490 kcal",
+    difficulty: "Medium",
     image:
       "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=900&q=80",
     ingredients: [
@@ -48,7 +56,8 @@ export const recipes = [
       "Roasted fennel & coriander seeds",
       "Fresh curry leaves",
       "Cold-pressed gingelly oil"
-    ]
+    ],
+    tip: "Dry-roast whole Tellicherry peppercorns and fennel until fragrant before grinding."
   },
   {
     id: 4,
@@ -56,6 +65,8 @@ export const recipes = [
     category: "Quick Bites",
     time: 15,
     veg: false,
+    calories: "340 kcal",
+    difficulty: "Easy",
     image:
       "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=900&q=80",
     ingredients: [
@@ -64,7 +75,8 @@ export const recipes = [
       "Soft-poached farm eggs",
       "Crushed red chili flakes",
       "Extra virgin olive oil & lemon"
-    ]
+    ],
+    tip: "Add a splash of white vinegar to simmering water and swirl gently before dropping the egg."
   },
   {
     id: 5,
@@ -72,6 +84,8 @@ export const recipes = [
     category: "Main Course",
     time: 50,
     veg: true,
+    calories: "430 kcal",
+    difficulty: "Chef Level",
     image:
       "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=900&q=80",
     ingredients: [
@@ -81,7 +95,8 @@ export const recipes = [
       "Golden crispy fried onions",
       "Saffron strands in warm milk",
       "Whole aromatic garam masala"
-    ]
+    ],
+    tip: "Parboil Basmati rice to 70% doneness so the grains elongate without breaking during dum."
   },
   {
     id: 6,
@@ -89,6 +104,8 @@ export const recipes = [
     category: "Quick Bites",
     time: 20,
     veg: false,
+    calories: "410 kcal",
+    difficulty: "Easy",
     image:
       "https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=900&q=80",
     ingredients: [
@@ -97,7 +114,8 @@ export const recipes = [
       "Herb-infused butter",
       "Fresh rosemary & thyme",
       "Charred lemon wedges"
-    ]
+    ],
+    tip: "Sear skin-side down first for 4 minutes untouched for a crisp, restaurant-style crust."
   },
   {
     id: 7,
@@ -105,6 +123,8 @@ export const recipes = [
     category: "Dessert",
     time: 25,
     veg: true,
+    calories: "290 kcal",
+    difficulty: "Easy",
     image:
       "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=900&q=80",
     ingredients: [
@@ -113,7 +133,8 @@ export const recipes = [
       "Organic cane sugar",
       "Vegetarian agar-agar",
       "Madagascar vanilla extract"
-    ]
+    ],
+    tip: "Use first-press Chikmagalur filter decoction for a rich mocha aroma without bitterness."
   },
   {
     id: 8,
@@ -121,6 +142,8 @@ export const recipes = [
     category: "Breakfast",
     time: 18,
     veg: true,
+    calories: "360 kcal",
+    difficulty: "Easy",
     image:
       "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=80",
     ingredients: [
@@ -129,6 +152,7 @@ export const recipes = [
       "Crumbled feta & Kalamata olives",
       "Creamy lemon-tahini dressing",
       "Fresh chopped parsley"
-    ]
+    ],
+    tip: "Pat chickpeas completely dry before roasting with smoked paprika for maximum crunch."
   }
 ];
