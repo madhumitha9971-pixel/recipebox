@@ -31,7 +31,7 @@ A clean, responsive recipe showcase with prop-driven components, dietary filteri
 
 
 
-![RecipeBox Preview](.preview.png)
+![RecipeBox Preview](preview.png)
 
 
 
