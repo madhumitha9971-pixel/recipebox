@@ -16,16 +16,28 @@ function App() {
   const [maxBudget, setMaxBudget] = useState(200);
   const [savedIds, setSavedIds] = useState([1, 2]);
 
-  // Guided Kitchen Mode & Remix State
+  // Guided Kitchen Mode, Remix & Voice State
   const [cookingRecipe, setCookingRecipe] = useState(null);
   const [remixMode, setRemixMode] = useState("original");
   const [checkedIngredients, setCheckedIngredients] = useState([]);
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [timerRunning, setTimerRunning] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [activeStepIndex, setActiveStepIndex] = useState(null);
 
   const categories = ["All", ...new Set(recipes.map((r) => r.category))];
 
+  // Preload speech synthesis voices for mobile browsers
+  useEffect(() => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
+  }, []);
+
+  // Countdown Timer Effect
   useEffect(() => {
     if (!timerRunning || secondsLeft <= 0) return;
     const interval = setInterval(() => {
@@ -47,6 +59,11 @@ function App() {
   };
 
   const openCookMode = (recipe) => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+    setIsSpeaking(false);
+    setActiveStepIndex(null);
     setCookingRecipe(recipe);
     setRemixMode("original");
     setCheckedIngredients([]);
@@ -57,6 +74,7 @@ function App() {
   const closeCookMode = () => {
     setTimerRunning(false);
     setCookingRecipe(null);
+    setActiveStepIndex(null);
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
@@ -72,23 +90,75 @@ function App() {
   };
 
   const toggleVoiceGuide = (recipe) => {
-    if (!("speechSynthesis" in window)) return;
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
+    if (!("speechSynthesis" in window)) {
+      alert("Voice readout is not supported in this browser.");
       return;
     }
+
+    const synth = window.speechSynthesis;
+
+    if (isSpeaking) {
+      synth.cancel();
+      setIsSpeaking(false);
+      setActiveStepIndex(null);
+      return;
+    }
+
+    // Clear any stuck queue on mobile browsers
+    synth.cancel();
+
     const stepsToRead =
       language === "TA" && recipe.tamilSteps ? recipe.tamilSteps : recipe.steps;
-    const text = `${recipe.name}. ${stepsToRead
-      .map((s, i) => `Step ${i + 1}: ${s}`)
-      .join(" ")}`;
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = language === "TA" ? "ta-IN" : "en-US";
-    utterance.rate = 0.95;
-    utterance.onend = () => setIsSpeaking(false);
+
+    const voices = synth.getVoices();
+    const preferredVoice =
+      language === "TA"
+        ? voices.find((v) => v.lang.toLowerCase().includes("ta")) ||
+          voices.find((v) => v.lang.toLowerCase().includes("en-in")) ||
+          voices[0]
+        : voices.find((v) => v.lang.toLowerCase().includes("en-in")) ||
+          voices.find((v) => v.lang.toLowerCase().startsWith("en")) ||
+          voices[0];
+
     setIsSpeaking(true);
-    window.speechSynthesis.speak(utterance);
+
+    const speakStep = (index) => {
+      if (index >= stepsToRead.length) {
+        setIsSpeaking(false);
+        setActiveStepIndex(null);
+        return;
+      }
+
+      setActiveStepIndex(index);
+      const prefix =
+        language === "TA" ? `படி ${index + 1}. ` : `Step ${index + 1}. `;
+      const utterance = new SpeechSynthesisUtterance(
+        prefix + stepsToRead[index]
+      );
+
+      if (preferredVoice) {
+        utterance.voice = preferredVoice;
+        utterance.lang = preferredVoice.lang;
+      } else {
+        utterance.lang = "en-US";
+      }
+
+      utterance.rate = 0.95;
+      utterance.pitch = 1;
+
+      utterance.onend = () => {
+        speakStep(index + 1);
+      };
+
+      utterance.onerror = () => {
+        setIsSpeaking(false);
+        setActiveStepIndex(null);
+      };
+
+      synth.speak(utterance);
+    };
+
+    speakStep(0);
   };
 
   const toggleSave = (id) => {
@@ -450,7 +520,12 @@ function App() {
                     ? cookingRecipe.tamilSteps
                     : cookingRecipe.steps
                   ).map((step, idx) => (
-                    <li key={idx} className="step-item">
+                    <li
+                      key={idx}
+                      className={`step-item ${
+                        activeStepIndex === idx ? "speaking-step" : ""
+                      }`}
+                    >
                       <span className="step-num">{idx + 1}</span>
                       <span>{step}</span>
                     </li>
