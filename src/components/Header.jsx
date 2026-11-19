@@ -1,71 +1,38 @@
-function Header({ totalCount, showingCount, darkMode, onToggleTheme }) {
+function Header({ totalCount, savedCount, darkMode, onToggleTheme }) {
   return (
-    <header className="hero-section">
-      <nav className="top-nav">
-        <div className="logo-mark">
-          <span className="logo-cube">🧊</span>
-          <span className="logo-text">
-            Recipe<span>Box</span> 3D
+    <header className="site-header">
+      <nav className="nav-bar">
+        <div className="brand">
+          <span className="brand-icon">🍳</span>
+          <span className="brand-name">
+            Recipe<span>Box</span>
           </span>
         </div>
 
         <button
           type="button"
-          className="theme-toggle-btn"
+          className="theme-btn"
           onClick={onToggleTheme}
-          aria-label="Toggle color theme"
+          aria-label="Switch theme"
         >
-          {darkMode ? "☀️ Light Studio" : "🌙 Dark Studio"}
+          {darkMode ? "☀️ Light" : "🌙 Dark"}
         </button>
       </nav>
 
-      <div className="hero-grid">
-        <div className="hero-copy">
-          <div className="hero-pill">
-            <span className="pulse-dot"></span>
-            Interactive Culinary Showcase
-          </div>
+      <div className="hero-content">
+        <span className="hero-kicker">Everyday Home Kitchen</span>
+        <h1 className="hero-heading">
+          Simple, Soulful Recipes for <span>Every Table</span>
+        </h1>
+        <p className="hero-description">
+          Browse curated home favorites, check off ingredients as you prep, and
+          cook along with a built-in kitchen timer.
+        </p>
 
-          <h1 className="hero-title">
-            Cook Smarter with <span>3D Spatial</span> Recipe Cards
-          </h1>
-
-          <p className="hero-subtitle">
-            Tilt, explore, and inspect handcrafted recipes built with modular
-            React components, real-time filters, and interactive quick-view cards.
-          </p>
-
-          <div className="hero-metrics">
-            <div className="metric-card">
-              <span className="metric-value">{showingCount}/{totalCount}</span>
-              <span className="metric-label">Active Recipes</span>
-            </div>
-            <div className="metric-card">
-              <span className="metric-value">3D Tilt</span>
-              <span className="metric-label">Touch & Cursor Physics</span>
-            </div>
-            <div className="metric-card">
-              <span className="metric-value">100%</span>
-              <span className="metric-label">Prop-Driven UI</span>
-            </div>
-          </div>
-        </div>
-
-        {/* 3D Floating Spatial Dish Stage */}
-        <div className="hero-3d-stage" aria-hidden="true">
-          <div className="floating-orb orb-1"></div>
-          <div className="floating-orb orb-2"></div>
-          <div className="spatial-showcase-card">
-            <img
-              src="https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=700&q=80"
-              alt=""
-              className="spatial-img"
-            />
-            <div className="spatial-float-tag tag-top">🔥 Trending Today</div>
-            <div className="spatial-float-tag tag-bottom">
-              ⏱ 30m • 🟢 Pure Veg
-            </div>
-          </div>
+        <div className="hero-badges">
+          <span className="info-pill">📖 {totalCount} Curated Dishes</span>
+          <span className="info-pill">❤️ {savedCount} Saved</span>
+          <span className="info-pill">⏱ Built-in Kitchen Timer</span>
         </div>
       </div>
     </header>
