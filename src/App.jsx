@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "./components/Header";
 import RecipeCard from "./components/RecipeCard";
 import IngredientList from "./components/IngredientList";
@@ -10,15 +10,61 @@ function App() {
   const [dietFilter, setDietFilter] = useState("ALL");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeRecipe, setActiveRecipe] = useState(null);
+  const [savedIds, setSavedIds] = useState([1, 2]);
+
+  // Guided Kitchen Mode State
+  const [cookingRecipe, setCookingRecipe] = useState(null);
+  const [checkedIngredients, setCheckedIngredients] = useState([]);
+  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [timerRunning, setTimerRunning] = useState(false);
 
   const categories = ["All", ...new Set(recipes.map((r) => r.category))];
+
+  useEffect(() => {
+    if (!timerRunning || secondsLeft <= 0) return;
+    const interval = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          setTimerRunning(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [timerRunning, secondsLeft]);
+
+  const openCookMode = (recipe) => {
+    setCookingRecipe(recipe);
+    setCheckedIngredients([]);
+    setSecondsLeft(recipe.time * 60);
+    setTimerRunning(false);
+  };
+
+  const toggleSave = (id) => {
+    setSavedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const toggleIngredientCheck = (item) => {
+    setCheckedIngredients((prev) =>
+      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
+    );
+  };
+
+  const formatTimer = (totalSeconds) => {
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  };
 
   const filteredRecipes = recipes.filter((recipe) => {
     const matchesDiet =
       dietFilter === "ALL" ||
       (dietFilter === "VEG" && recipe.veg) ||
-      (dietFilter === "NONVEG" && !recipe.veg);
+      (dietFilter === "NONVEG" && !recipe.veg) ||
+      (dietFilter === "SAVED" && savedIds.includes(recipe.id));
 
     const matchesCategory =
       categoryFilter === "All" || recipe.category === categoryFilter;
@@ -33,30 +79,29 @@ function App() {
   });
 
   return (
-    <div className={`app-root ${darkMode ? "theme-dark" : "theme-light"}`}>
+    <div className={`app-shell ${darkMode ? "dark" : "light"}`}>
       <Header
         totalCount={recipes.length}
-        showingCount={filteredRecipes.length}
+        savedCount={savedIds.length}
         darkMode={darkMode}
         onToggleTheme={() => setDarkMode(!darkMode)}
       />
 
-      <main className="main-stage">
-        {/* Interactive Control Dock */}
-        <section className="control-dock" aria-label="Filter and search recipes">
-          <div className="search-box">
-            <span className="search-icon">🔍</span>
+      <main className="main-content">
+        <section className="toolbar" aria-label="Search and filter recipes">
+          <div className="search-wrap">
+            <span className="search-glyph">🔍</span>
             <input
               type="text"
-              placeholder="Search recipe or ingredient (e.g., Paneer, Avocado)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="search-input"
+              placeholder="Search dishes or ingredients..."
+              className="search-field"
             />
             {searchQuery && (
               <button
                 type="button"
-                className="clear-search"
+                className="clear-btn"
                 onClick={() => setSearchQuery("")}
               >
                 ✕
@@ -64,37 +109,52 @@ function App() {
             )}
           </div>
 
-          <div className="filter-row">
-            <div className="diet-pills">
+          <div className="filters-wrap">
+            <div className="pill-group">
               <button
                 type="button"
-                className={`pill-btn ${dietFilter === "ALL" ? "active" : ""}`}
+                className={`filter-pill ${dietFilter === "ALL" ? "active" : ""}`}
                 onClick={() => setDietFilter("ALL")}
               >
                 All ({recipes.length})
               </button>
               <button
                 type="button"
-                className={`pill-btn ${dietFilter === "VEG" ? "active-veg" : ""}`}
+                className={`filter-pill ${
+                  dietFilter === "VEG" ? "active-veg" : ""
+                }`}
                 onClick={() => setDietFilter("VEG")}
               >
                 🟢 Veg
               </button>
               <button
                 type="button"
-                className={`pill-btn ${dietFilter === "NONVEG" ? "active-nonveg" : ""}`}
+                className={`filter-pill ${
+                  dietFilter === "NONVEG" ? "active-nonveg" : ""
+                }`}
                 onClick={() => setDietFilter("NONVEG")}
               >
                 🔴 Non-Veg
               </button>
+              <button
+                type="button"
+                className={`filter-pill ${
+                  dietFilter === "SAVED" ? "active" : ""
+                }`}
+                onClick={() => setDietFilter("SAVED")}
+              >
+                ❤️ Saved ({savedIds.length})
+              </button>
             </div>
 
-            <div className="category-pills">
+            <div className="pill-group">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   type="button"
-                  className={`cat-btn ${categoryFilter === cat ? "active" : ""}`}
+                  className={`cat-pill ${
+                    categoryFilter === cat ? "active" : ""
+                  }`}
                   onClick={() => setCategoryFilter(cat)}
                 >
                   {cat}
@@ -104,20 +164,21 @@ function App() {
           </div>
         </section>
 
-        {/* Responsive 3D Card Grid */}
         {filteredRecipes.length > 0 ? (
-          <section className="recipe-grid-3d" aria-label="Recipes">
+          <section className="recipe-grid" aria-label="Recipe collection">
             {filteredRecipes.map((recipe) => (
               <RecipeCard
                 key={recipe.id}
                 recipe={recipe}
-                onSelect={setActiveRecipe}
+                isSaved={savedIds.includes(recipe.id)}
+                onToggleSave={toggleSave}
+                onOpenCookMode={openCookMode}
               />
             ))}
           </section>
         ) : (
-          <div className="empty-state">
-            <p>No recipes match "{searchQuery}".</p>
+          <div className="empty-box">
+            <p>No dishes found matching your filter.</p>
             <button
               type="button"
               className="reset-btn"
@@ -127,67 +188,111 @@ function App() {
                 setCategoryFilter("All");
               }}
             >
-              Reset Filters
+              Show All Dishes
             </button>
           </div>
         )}
       </main>
 
-      {/* Interactive Quick-View Recipe Modal */}
-      {activeRecipe && (
+      {/* Guided Kitchen Mode Drawer/Modal */}
+      {cookingRecipe && (
         <div
-          className="modal-backdrop"
-          onClick={() => setActiveRecipe(null)}
-          role="dialog"
-          aria-modal="true"
+          className="kitchen-backdrop"
+          onClick={() => {
+            setTimerRunning(false);
+            setCookingRecipe(null);
+          }}
         >
-          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+          <div className="kitchen-modal" onClick={(e) => e.stopPropagation()}>
             <button
               type="button"
-              className="modal-close"
-              onClick={() => setActiveRecipe(null)}
-              aria-label="Close modal"
+              className="close-modal-btn"
+              onClick={() => {
+                setTimerRunning(false);
+                setCookingRecipe(null);
+              }}
             >
               ✕
             </button>
 
             <img
-              src={activeRecipe.image}
-              alt={activeRecipe.name}
-              className="modal-hero-img"
+              src={cookingRecipe.image}
+              alt={cookingRecipe.name}
+              className="kitchen-banner"
             />
 
-            <div className="modal-content">
-              <div className="modal-badges">
-                <span className="badge-category">{activeRecipe.category}</span>
+            <div className="kitchen-body">
+              <div className="kitchen-tags">
+                <span className="cat-badge">{cookingRecipe.category}</span>
                 <span
-                  className={`badge-diet ${
-                    activeRecipe.veg ? "veg" : "nonveg"
+                  className={`diet-tag ${
+                    cookingRecipe.veg ? "veg" : "nonveg"
                   }`}
                 >
-                  {activeRecipe.veg ? "🟢 Veg" : "🔴 Non-veg"}
+                  {cookingRecipe.veg ? "🟢 Veg" : "🔴 Non-veg"}
                 </span>
-                <span className="badge-glass">⏱ {activeRecipe.time} mins</span>
-                <span className="badge-glass">🔥 {activeRecipe.calories}</span>
+                <span className="time-tag">🔥 {cookingRecipe.calories}</span>
               </div>
 
-              <h2 className="modal-title">{activeRecipe.name}</h2>
+              <h2 className="kitchen-title">{cookingRecipe.name}</h2>
 
+              {/* Live Kitchen Countdown Timer */}
+              <div className="timer-card">
+                <div>
+                  <span className="timer-label">Kitchen Timer</span>
+                  <div className="timer-readout">
+                    {formatTimer(secondsLeft)}
+                  </div>
+                </div>
+                <div className="timer-controls">
+                  <button
+                    type="button"
+                    className="timer-btn primary"
+                    onClick={() => setTimerRunning(!timerRunning)}
+                  >
+                    {timerRunning ? "Pause" : "Start"}
+                  </button>
+                  <button
+                    type="button"
+                    className="timer-btn"
+                    onClick={() => {
+                      setTimerRunning(false);
+                      setSecondsLeft(cookingRecipe.time * 60);
+                    }}
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+
+              {/* Interactive Prep Checklist */}
+              <p className="prep-hint">Tap ingredients below as you prep them:</p>
               <IngredientList
-                ingredients={activeRecipe.ingredients}
+                ingredients={cookingRecipe.ingredients}
                 showAll={true}
+                checkedItems={checkedIngredients}
+                onToggleItem={toggleIngredientCheck}
               />
 
-              <div className="chef-tip-box">
-                <strong>👨‍🍳 Chef's Pro Tip:</strong> {activeRecipe.tip}
+              {/* Step-by-Step Method */}
+              <div className="steps-section">
+                <h3 className="steps-heading">Preparation Steps</h3>
+                <ol className="steps-list">
+                  {cookingRecipe.steps.map((step, idx) => (
+                    <li key={idx} className="step-item">
+                      <span className="step-num">{idx + 1}</span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      <footer className="app-footer">
-        <p>RecipeBox 3D • Built with React & Vite by Madhu Mitha</p>
+      <footer className="site-footer">
+        <p>RecipeBox • Crafted with React & Vite by Madhu Mitha</p>
       </footer>
     </div>
   );
