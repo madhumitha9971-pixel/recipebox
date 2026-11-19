@@ -6,18 +6,22 @@ export const recipes = [
     time: 30,
     veg: true,
     calories: "320 kcal",
-    difficulty: "Medium",
     image:
       "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=900&q=80",
     ingredients: [
       "Fermented rice & urad dal batter",
-      "Spiced mashed potato filling",
+      "Boiled & spiced mashed potatoes",
       "Fresh grated coconut",
       "Mustard seeds & curry leaves",
       "Roasted chana dal",
       "Pure cow ghee"
     ],
-    tip: "Drizzle ghee around the edges on medium-high flame for a golden, lacy crunch."
+    steps: [
+      "Heat a seasoned cast-iron tawa on medium-high flame and sprinkle a few drops of water.",
+      "Pour a ladleful of batter and swirl outward into a thin, crisp circle.",
+      "Drizzle 1 tsp ghee around the edges and roast until golden brown.",
+      "Place warm potato masala in the center, fold, and serve with fresh coconut chutney."
+    ]
   },
   {
     id: 2,
@@ -26,18 +30,22 @@ export const recipes = [
     time: 35,
     veg: true,
     calories: "460 kcal",
-    difficulty: "Easy",
     image:
       "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=900&q=80",
     ingredients: [
       "Fresh malai paneer cubes",
-      "Velvety ripe tomato puree",
+      "Ripe tomato puree",
       "Soaked cashew nut paste",
       "Unsalted white butter",
       "Kasuri methi & garam masala",
       "Kashmiri red chili powder"
     ],
-    tip: "Soak paneer cubes in warm salted water for 10 minutes before simmering so they stay pillow-soft."
+    steps: [
+      "Soak paneer cubes in warm salted water for 10 minutes so they stay soft.",
+      "Simmer tomato puree with butter and Kashmiri chili powder until glossy.",
+      "Whisk in smooth cashew paste and crushed kasuri methi on low heat.",
+      "Fold in paneer cubes and simmer gently for 4 minutes before serving."
+    ]
   },
   {
     id: 3,
@@ -46,18 +54,22 @@ export const recipes = [
     time: 45,
     veg: false,
     calories: "490 kcal",
-    difficulty: "Medium",
     image:
       "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=900&q=80",
     ingredients: [
       "Tender bone-in chicken",
       "Freshly cracked black pepper",
-      "Shallots & ripe tomatoes",
+      "Pearl shallots & ripe tomatoes",
       "Roasted fennel & coriander seeds",
       "Fresh curry leaves",
       "Cold-pressed gingelly oil"
     ],
-    tip: "Dry-roast whole Tellicherry peppercorns and fennel until fragrant before grinding."
+    steps: [
+      "Dry-roast black peppercorns, fennel, and coriander seeds until fragrant, then grind.",
+      "Sauté pearl shallots and curry leaves in gingelly oil until caramelized.",
+      "Add chicken and roasted spice masala, searing on high heat for 5 minutes.",
+      "Cover and simmer until tender and coated in a dark, aromatic pepper gravy."
+    ]
   },
   {
     id: 4,
@@ -66,17 +78,21 @@ export const recipes = [
     time: 15,
     veg: false,
     calories: "340 kcal",
-    difficulty: "Easy",
     image:
       "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=900&q=80",
     ingredients: [
-      "Toasted artisanal sourdough",
-      "Smashed Hass avocado",
-      "Soft-poached farm eggs",
+      "Artisanal sourdough slices",
+      "Ripe Hass avocado",
+      "Farm-fresh eggs",
       "Crushed red chili flakes",
       "Extra virgin olive oil & lemon"
     ],
-    tip: "Add a splash of white vinegar to simmering water and swirl gently before dropping the egg."
+    steps: [
+      "Toast thick sourdough slices until golden and crisp on both sides.",
+      "Mash ripe avocado with fresh lemon juice, sea salt, and olive oil.",
+      "Gently poach eggs in simmering water for 3 minutes until whites are set.",
+      "Layer avocado over warm toast, top with poached egg, and finish with chili flakes."
+    ]
   },
   {
     id: 5,
@@ -85,18 +101,22 @@ export const recipes = [
     time: 50,
     veg: true,
     calories: "430 kcal",
-    difficulty: "Chef Level",
     image:
       "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=900&q=80",
     ingredients: [
-      "Aged royal Basmati rice",
+      "Aged long-grain Basmati rice",
       "Diced carrots, beans & potatoes",
-      "Hung curd & fresh mint",
-      "Golden crispy fried onions",
-      "Saffron strands in warm milk",
-      "Whole aromatic garam masala"
+      "Thick yogurt & fresh mint",
+      "Crispy golden fried onions",
+      "Saffron soaked in warm milk",
+      "Whole aromatic spices"
     ],
-    tip: "Parboil Basmati rice to 70% doneness so the grains elongate without breaking during dum."
+    steps: [
+      "Marinate mixed vegetables in yogurt, mint, fried onions, and biryani spices.",
+      "Parboil soaked Basmati rice with whole spices until 70% cooked.",
+      "Layer rice over marinated vegetables and drizzle saffron milk on top.",
+      "Seal tightly and cook on low dum heat for 20 minutes until fluffy."
+    ]
   },
   {
     id: 6,
@@ -105,7 +125,6 @@ export const recipes = [
     time: 20,
     veg: false,
     calories: "410 kcal",
-    difficulty: "Easy",
     image:
       "https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=900&q=80",
     ingredients: [
@@ -115,7 +134,12 @@ export const recipes = [
       "Fresh rosemary & thyme",
       "Charred lemon wedges"
     ],
-    tip: "Sear skin-side down first for 4 minutes untouched for a crisp, restaurant-style crust."
+    steps: [
+      "Pat salmon fillets dry and season generously with sea salt and cracked pepper.",
+      "Sear skin-side down in a hot skillet for 4 minutes until crisp.",
+      "Flip, add butter, crushed garlic, rosemary, and thyme, and baste continuously.",
+      "Serve immediately with charred lemon wedges."
+    ]
   },
   {
     id: 7,
@@ -124,7 +148,6 @@ export const recipes = [
     time: 25,
     veg: true,
     calories: "290 kcal",
-    difficulty: "Easy",
     image:
       "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=900&q=80",
     ingredients: [
@@ -132,9 +155,14 @@ export const recipes = [
       "Chilled heavy cream",
       "Organic cane sugar",
       "Vegetarian agar-agar",
-      "Madagascar vanilla extract"
+      "Pure vanilla extract"
     ],
-    tip: "Use first-press Chikmagalur filter decoction for a rich mocha aroma without bitterness."
+    steps: [
+      "Whisk agar-agar into cold cream and let bloom for 5 minutes.",
+      "Warm the cream with organic sugar until dissolved without boiling.",
+      "Stir in freshly brewed filter coffee decoction and vanilla extract.",
+      "Pour into ramekins and chill until silky and set."
+    ]
   },
   {
     id: 8,
@@ -143,7 +171,6 @@ export const recipes = [
     time: 18,
     veg: true,
     calories: "360 kcal",
-    difficulty: "Easy",
     image:
       "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=80",
     ingredients: [
@@ -153,6 +180,11 @@ export const recipes = [
       "Creamy lemon-tahini dressing",
       "Fresh chopped parsley"
     ],
-    tip: "Pat chickpeas completely dry before roasting with smoked paprika for maximum crunch."
+    steps: [
+      "Toss chickpeas with olive oil, cumin, and smoked paprika, then roast until crisp.",
+      "Dice cucumber, halve cherry tomatoes, and chop fresh flat-leaf parsley.",
+      "Whisk tahini, lemon juice, garlic, and warm water into a silky dressing.",
+      "Assemble greens, warm chickpeas, feta, and olives, and drizzle dressing over."
+    ]
   }
 ];
