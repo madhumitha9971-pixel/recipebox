@@ -27,7 +27,7 @@ A clean, responsive recipe showcase with prop-driven components, dietary filteri
 
 
 
-[**Live Demo**](https://YOUR-DEPLOYED-LINK.vercel.app) · [**Report Bug**](https://github.com/MADHUMITHA9971/PIXEL-FLAVOR-MATRIX/issues) · [**Request Feature**](https://github.com/MADHUMITHA9971/PIXEL-FLAVOR-MATRIX/issues)
+[**Live Demo**]( https://recipebox-psi-black.vercel.app/ ) [**Report Bug**](https://github.com/MADHUMITHA9971/PIXEL-FLAVOR-MATRIX/issues) · [**Request Feature**](https://github.com/MADHUMITHA9971/PIXEL-FLAVOR-MATRIX/issues)
 
 
 
