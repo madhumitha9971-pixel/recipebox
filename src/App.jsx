@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Header from "./components/Header";
 import SmartKitchenTools from "./components/SmartKitchenTools";
 import RecipeCard from "./components/RecipeCard";
@@ -24,18 +24,9 @@ function App() {
   const [timerRunning, setTimerRunning] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [activeStepIndex, setActiveStepIndex] = useState(null);
+  const keepAliveRef = useRef(null);
 
   const categories = ["All", ...new Set(recipes.map((r) => r.category))];
-
-  // Preload speech synthesis voices for mobile browsers
-  useEffect(() => {
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.getVoices();
-      window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.getVoices();
-      };
-    }
-  }, []);
 
   // Countdown Timer Effect
   useEffect(() => {
@@ -52,6 +43,18 @@ function App() {
     return () => clearInterval(interval);
   }, [timerRunning, secondsLeft]);
 
+  const stopSpeech = () => {
+    if (keepAliveRef.current) {
+      clearInterval(keepAliveRef.current);
+      keepAliveRef.current = null;
+    }
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+    setIsSpeaking(false);
+    setActiveStepIndex(null);
+  };
+
   const togglePantry = (key) => {
     setSelectedPantry((prev) =>
       prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key]
@@ -59,11 +62,7 @@ function App() {
   };
 
   const openCookMode = (recipe) => {
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
-    setIsSpeaking(false);
-    setActiveStepIndex(null);
+    stopSpeech();
     setCookingRecipe(recipe);
     setRemixMode("original");
     setCheckedIngredients([]);
@@ -74,11 +73,7 @@ function App() {
   const closeCookMode = () => {
     setTimerRunning(false);
     setCookingRecipe(null);
-    setActiveStepIndex(null);
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-    }
+    stopSpeech();
   };
 
   const handleSelectRemix = (mode, recipe) => {
@@ -89,6 +84,53 @@ function App() {
     setSecondsLeft(activeTime * 60);
   };
 
+  // Speak a single step directly on tap (100% mobile browser compatible)
+  const speakSingleStep = (stepText, index) => {
+    if (!("speechSynthesis" in window)) {
+      alert("Voice readout is not supported in this browser.");
+      return;
+    }
+
+    const synth = window.speechSynthesis;
+    synth.cancel();
+
+    const prefix =
+      language === "TA" ? `படி ${index + 1}. ` : `Step ${index + 1}. `;
+    const utterance = new SpeechSynthesisUtterance(prefix + stepText);
+    utterance.lang = language === "TA" ? "ta-IN" : "en-US";
+    utterance.rate = 0.95;
+    utterance.volume = 1;
+
+    setIsSpeaking(true);
+    setActiveStepIndex(index);
+
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      setActiveStepIndex(null);
+    };
+
+    utterance.onerror = () => {
+      // Fallback to en-US if ta-IN voice pack is not installed on device
+      if (utterance.lang === "ta-IN") {
+        const fallback = new SpeechSynthesisUtterance(
+          `Step ${index + 1}. ${cookingRecipe.steps[index]}`
+        );
+        fallback.lang = "en-US";
+        fallback.onend = () => {
+          setIsSpeaking(false);
+          setActiveStepIndex(null);
+        };
+        synth.speak(fallback);
+      } else {
+        setIsSpeaking(false);
+        setActiveStepIndex(null);
+      }
+    };
+
+    synth.speak(utterance);
+  };
+
+  // Read all steps queued immediately inside the click gesture
   const toggleVoiceGuide = (recipe) => {
     if (!("speechSynthesis" in window)) {
       alert("Voice readout is not supported in this browser.");
@@ -98,67 +140,66 @@ function App() {
     const synth = window.speechSynthesis;
 
     if (isSpeaking) {
-      synth.cancel();
-      setIsSpeaking(false);
-      setActiveStepIndex(null);
+      stopSpeech();
       return;
     }
 
-    // Clear any stuck queue on mobile browsers
     synth.cancel();
 
     const stepsToRead =
       language === "TA" && recipe.tamilSteps ? recipe.tamilSteps : recipe.steps;
 
-    const voices = synth.getVoices();
-    const preferredVoice =
-      language === "TA"
-        ? voices.find((v) => v.lang.toLowerCase().includes("ta")) ||
-          voices.find((v) => v.lang.toLowerCase().includes("en-in")) ||
-          voices[0]
-        : voices.find((v) => v.lang.toLowerCase().includes("en-in")) ||
-          voices.find((v) => v.lang.toLowerCase().startsWith("en")) ||
-          voices[0];
-
     setIsSpeaking(true);
+    setActiveStepIndex(0);
 
-    const speakStep = (index) => {
-      if (index >= stepsToRead.length) {
-        setIsSpeaking(false);
-        setActiveStepIndex(null);
-        return;
-      }
-
-      setActiveStepIndex(index);
+    // Queue all utterances synchronously inside the user tap so mobile Chrome allows all of them
+    stepsToRead.forEach((step, idx) => {
       const prefix =
-        language === "TA" ? `படி ${index + 1}. ` : `Step ${index + 1}. `;
-      const utterance = new SpeechSynthesisUtterance(
-        prefix + stepsToRead[index]
-      );
-
-      if (preferredVoice) {
-        utterance.voice = preferredVoice;
-        utterance.lang = preferredVoice.lang;
-      } else {
-        utterance.lang = "en-US";
-      }
-
+        language === "TA" ? `படி ${idx + 1}. ` : `Step ${idx + 1}. `;
+      const utterance = new SpeechSynthesisUtterance(prefix + step);
+      utterance.lang = language === "TA" ? "ta-IN" : "en-US";
       utterance.rate = 0.95;
-      utterance.pitch = 1;
+      utterance.volume = 1;
 
-      utterance.onend = () => {
-        speakStep(index + 1);
+      utterance.onstart = () => {
+        setActiveStepIndex(idx);
       };
 
+      if (idx === stepsToRead.length - 1) {
+        utterance.onend = () => {
+          stopSpeech();
+        };
+      }
+
       utterance.onerror = () => {
-        setIsSpeaking(false);
-        setActiveStepIndex(null);
+        if (idx === 0 && language === "TA") {
+          synth.cancel();
+          recipe.steps.forEach((enStep, enIdx) => {
+            const fb = new SpeechSynthesisUtterance(
+              `Step ${enIdx + 1}. ${enStep}`
+            );
+            fb.lang = "en-US";
+            fb.onstart = () => setActiveStepIndex(enIdx);
+            if (enIdx === recipe.steps.length - 1) {
+              fb.onend = () => stopSpeech();
+            }
+            synth.speak(fb);
+          });
+        } else {
+          stopSpeech();
+        }
       };
 
       synth.speak(utterance);
-    };
+    });
 
-    speakStep(0);
+    // Prevent Android Chrome from pausing speech after 15 seconds
+    keepAliveRef.current = setInterval(() => {
+      if (synth.speaking && !synth.paused) {
+        synth.pause();
+        synth.resume();
+      }
+    }, 10000);
   };
 
   const toggleSave = (id) => {
@@ -179,7 +220,6 @@ function App() {
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
-  // Compute Fridge Match % and apply filters
   const processedRecipes = recipes
     .map((recipe) => {
       if (selectedPantry.length === 0) {
@@ -230,6 +270,12 @@ function App() {
       ? cookingRecipe.remixes[remixMode]
       : null;
 
+  const activeSteps = cookingRecipe
+    ? language === "TA" && cookingRecipe.tamilSteps
+      ? cookingRecipe.tamilSteps
+      : cookingRecipe.steps
+    : [];
+
   return (
     <div className={`app-shell ${darkMode ? "dark" : "light"}`}>
       <Header
@@ -241,7 +287,6 @@ function App() {
       />
 
       <main className="main-content">
-        {/* Fridge-to-Recipe Matcher, Budget Slider & Tamil/English Switch */}
         <SmartKitchenTools
           selectedPantry={selectedPantry}
           onTogglePantry={togglePantry}
@@ -252,7 +297,6 @@ function App() {
           onToggleLanguage={setLanguage}
         />
 
-        {/* Search & Dietary Bar */}
         <section className="toolbar" aria-label="Search and filter recipes">
           <div className="search-wrap">
             <span className="search-glyph">🔍</span>
@@ -329,7 +373,6 @@ function App() {
           </div>
         </section>
 
-        {/* Responsive 3D Flip Card Grid */}
         {processedRecipes.length > 0 ? (
           <section className="recipe-grid" aria-label="Recipe collection">
             {processedRecipes.map((recipe) => (
@@ -366,7 +409,6 @@ function App() {
         )}
       </main>
 
-      {/* Guided Kitchen Mode + Recipe Remix Engine Modal */}
       {cookingRecipe && (
         <div className="kitchen-backdrop" onClick={closeCookMode}>
           <div className="kitchen-modal" onClick={(e) => e.stopPropagation()}>
@@ -411,7 +453,6 @@ function App() {
                   : cookingRecipe.name}
               </h2>
 
-              {/* Recipe Remix Engine */}
               <div className="remix-box">
                 <span className="remix-label">🎛️ Recipe Remix Mode</span>
                 <div className="remix-pills">
@@ -461,7 +502,6 @@ function App() {
                 )}
               </div>
 
-              {/* Live Kitchen Countdown Timer */}
               <div className="timer-card">
                 <div>
                   <span className="timer-label">Kitchen Timer</span>
@@ -511,23 +551,25 @@ function App() {
                     className={`voice-btn ${isSpeaking ? "speaking" : ""}`}
                     onClick={() => toggleVoiceGuide(cookingRecipe)}
                   >
-                    {isSpeaking ? "⏹ Stop Voice" : "🔊 Read Steps"}
+                    {isSpeaking ? "⏹ Stop Voice" : "🔊 Read All Steps"}
                   </button>
                 </div>
 
                 <ol className="steps-list">
-                  {(language === "TA" && cookingRecipe.tamilSteps
-                    ? cookingRecipe.tamilSteps
-                    : cookingRecipe.steps
-                  ).map((step, idx) => (
+                  {activeSteps.map((step, idx) => (
                     <li
                       key={idx}
+                      onClick={() => speakSingleStep(step, idx)}
+                      style={{ cursor: "pointer" }}
                       className={`step-item ${
                         activeStepIndex === idx ? "speaking-step" : ""
                       }`}
                     >
                       <span className="step-num">{idx + 1}</span>
-                      <span>{step}</span>
+                      <span style={{ flex: 1 }}>{step}</span>
+                      <span style={{ fontSize: "0.85rem", opacity: 0.75 }}>
+                        🔊
+                      </span>
                     </li>
                   ))}
                 </ol>
