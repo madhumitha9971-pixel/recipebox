@@ -333,7 +333,7 @@ export const recipes = [
     macros: { protein: "5g", carbs: "26g", fat: "18g" },
     pantryTags: ["coffee", "milk", "cream", "sugar"],
     image:
-      "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=900&q=80",
     ingredients: [
       "Strong South Indian coffee decoction",
       "Chilled heavy cream",
