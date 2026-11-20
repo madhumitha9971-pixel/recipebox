@@ -6,25 +6,31 @@ import IngredientList from "./components/IngredientList";
 import { recipes } from "./data/recipes";
 import "./App.css";
 
+const CATEGORIES = ["All", "Breakfast", "Lunch", "Dinner", "Dessert"];
+
 function App() {
   const [darkMode, setDarkMode] = useState(true);
   const [language, setLanguage] = useState("EN");
-  const [dietFilter, setDietFilter] = useState("ALL");
-  const [categoryFilter, setCategoryFilter] = useState("All");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedPantry, setSelectedPantry] = useState([]);
-  const [maxBudget, setMaxBudget] = useState(200);
-  const [savedIds, setSavedIds] = useState([1, 2]);
 
-  // Guided Kitchen Mode & Remix State
+  // Week 2 Required State: search, category, favourites, favouritesOnly, maxTime
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+  const [favourites, setFavourites] = useState([1, 3]);
+  const [showFavouritesOnly, setShowFavouritesOnly] = useState(false);
+  const [dietFilter, setDietFilter] = useState("ALL");
+  const [selectedPantry, setSelectedPantry] = useState([]);
+  const [maxTime, setMaxTime] = useState(60);
+  const [maxBudget, setMaxBudget] = useState(200);
+
+  // Guided Kitchen Mode, Serving Scaler, Remix & Grocery List State
   const [cookingRecipe, setCookingRecipe] = useState(null);
+  const [servings, setServings] = useState(1);
   const [remixMode, setRemixMode] = useState("original");
   const [checkedIngredients, setCheckedIngredients] = useState([]);
   const [completedSteps, setCompletedSteps] = useState([]);
+  const [shoppingList, setShoppingList] = useState([]);
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [timerRunning, setTimerRunning] = useState(false);
-
-  const categories = ["All", ...new Set(recipes.map((r) => r.category))];
 
   // Countdown Timer Effect
   useEffect(() => {
@@ -41,6 +47,13 @@ function App() {
     return () => clearInterval(interval);
   }, [timerRunning, secondsLeft]);
 
+  // Toggle favourite ID in state (Week 2 requirement)
+  const toggleFavourite = (id) => {
+    setFavourites((prev) =>
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
+    );
+  };
+
   const togglePantry = (key) => {
     setSelectedPantry((prev) =>
       prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key]
@@ -49,6 +62,7 @@ function App() {
 
   const openCookMode = (recipe) => {
     setCookingRecipe(recipe);
+    setServings(1);
     setRemixMode("original");
     setCheckedIngredients([]);
     setCompletedSteps([]);
@@ -70,12 +84,6 @@ function App() {
     setSecondsLeft(activeTime * 60);
   };
 
-  const toggleSave = (id) => {
-    setSavedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
   const toggleIngredientCheck = (item) => {
     setCheckedIngredients((prev) =>
       prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
@@ -88,13 +96,18 @@ function App() {
     );
   };
 
+  const addAllToShoppingList = (items) => {
+    setShoppingList((prev) => [...new Set([...prev, ...items])]);
+  };
+
   const formatTimer = (totalSeconds) => {
     const mins = Math.floor(totalSeconds / 60);
     const secs = totalSeconds % 60;
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
-  const processedRecipes = recipes
+  // Derive visibleRecipes during render using .filter(...) (Week 2 best practice)
+  const visibleRecipes = recipes
     .map((recipe) => {
       if (selectedPantry.length === 0) {
         return { ...recipe, matchScore: 0 };
@@ -108,36 +121,50 @@ function App() {
       return { ...recipe, matchScore };
     })
     .filter((recipe) => {
+      const matchesSearch =
+        recipe.name.toLowerCase().includes(search.toLowerCase()) ||
+        (recipe.tamilName && recipe.tamilName.includes(search)) ||
+        recipe.ingredients.some((ing) =>
+          ing.toLowerCase().includes(search.toLowerCase())
+        );
+
+      const matchesCategory =
+        category === "All" || recipe.category === category;
+
+      const matchesFavourites =
+        !showFavouritesOnly || favourites.includes(recipe.id);
+
       const matchesDiet =
         dietFilter === "ALL" ||
         (dietFilter === "VEG" && recipe.veg) ||
-        (dietFilter === "NONVEG" && !recipe.veg) ||
-        (dietFilter === "SAVED" && savedIds.includes(recipe.id));
+        (dietFilter === "NONVEG" && !recipe.veg);
 
-      const matchesCategory =
-        categoryFilter === "All" || recipe.category === categoryFilter;
-
+      const matchesTime = recipe.time <= maxTime;
       const matchesBudget = recipe.costInr <= maxBudget;
-
       const matchesPantry =
         selectedPantry.length === 0 || recipe.matchScore > 0;
 
-      const matchesSearch =
-        recipe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (recipe.tamilName && recipe.tamilName.includes(searchQuery)) ||
-        recipe.ingredients.some((ing) =>
-          ing.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-
       return (
-        matchesDiet &&
+        matchesSearch &&
         matchesCategory &&
+        matchesFavourites &&
+        matchesDiet &&
+        matchesTime &&
         matchesBudget &&
-        matchesPantry &&
-        matchesSearch
+        matchesPantry
       );
     })
     .sort((a, b) => b.matchScore - a.matchScore);
+
+  const resetAllFilters = () => {
+    setSearch("");
+    setCategory("All");
+    setShowFavouritesOnly(false);
+    setDietFilter("ALL");
+    setSelectedPantry([]);
+    setMaxTime(60);
+    setMaxBudget(200);
+  };
 
   const activeRemixData =
     cookingRecipe && remixMode !== "original"
@@ -155,51 +182,85 @@ function App() {
       <Header
         recipes={recipes}
         totalCount={recipes.length}
-        savedCount={savedIds.length}
+        savedCount={favourites.length}
         darkMode={darkMode}
         onToggleTheme={() => setDarkMode(!darkMode)}
       />
 
       <main className="main-content">
+        {/* Fridge Rescue, Max Cooking Time Slider & Max Budget Slider */}
         <SmartKitchenTools
           selectedPantry={selectedPantry}
           onTogglePantry={togglePantry}
           onClearPantry={() => setSelectedPantry([])}
+          maxTime={maxTime}
+          onTimeChange={setMaxTime}
           maxBudget={maxBudget}
           onBudgetChange={setMaxBudget}
           language={language}
           onToggleLanguage={setLanguage}
         />
 
+        {/* Week 2 Interactive Search, Category & Favourites Toolbar */}
         <section className="toolbar" aria-label="Search and filter recipes">
-          <div className="search-wrap">
-            <span className="search-glyph">🔍</span>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search dishes, Tamil names, or ingredients..."
-              className="search-field"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                className="clear-btn"
-                onClick={() => setSearchQuery("")}
-              >
-                ✕
-              </button>
-            )}
+          <div className="search-row">
+            <div className="search-wrap">
+              <span className="search-glyph">🔍</span>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search recipes by name or ingredient..."
+                className="search-field"
+                aria-label="Search recipes"
+              />
+              {search && (
+                <button
+                  type="button"
+                  className="clear-btn"
+                  onClick={() => setSearch("")}
+                  aria-label="Clear search"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Dedicated Week 2 'Show Favourites Only' Toggle */}
+            <button
+              type="button"
+              className={`fav-toggle-btn ${showFavouritesOnly ? "active" : ""}`}
+              onClick={() => setShowFavouritesOnly(!showFavouritesOnly)}
+              aria-pressed={showFavouritesOnly}
+            >
+              {showFavouritesOnly ? "❤️ Showing Favourites" : "🤍 Show Favourites Only"} (
+              {favourites.length})
+            </button>
           </div>
 
           <div className="filters-wrap">
-            <div className="pill-group">
+            {/* Required Week 2 Category Buttons: All, Breakfast, Lunch, Dinner, Dessert */}
+            <div className="pill-group" role="group" aria-label="Meal categories">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  className={`cat-pill ${category === cat ? "active" : ""}`}
+                  onClick={() => setCategory(cat)}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Veg / Non-Veg Dietary Filter */}
+            <div className="pill-group" role="group" aria-label="Dietary preference">
               <button
                 type="button"
                 className={`filter-pill ${dietFilter === "ALL" ? "active" : ""}`}
                 onClick={() => setDietFilter("ALL")}
               >
-                All ({processedRecipes.length})
+                All Diets ({visibleRecipes.length})
               </button>
               <button
                 type="button"
@@ -219,63 +280,62 @@ function App() {
               >
                 🔴 Non-Veg
               </button>
-              <button
-                type="button"
-                className={`filter-pill ${
-                  dietFilter === "SAVED" ? "active" : ""
-                }`}
-                onClick={() => setDietFilter("SAVED")}
-              >
-                ❤️ Saved ({savedIds.length})
-              </button>
-            </div>
-
-            <div className="pill-group">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  className={`cat-pill ${
-                    categoryFilter === cat ? "active" : ""
-                  }`}
-                  onClick={() => setCategoryFilter(cat)}
-                >
-                  {cat}
-                </button>
-              ))}
             </div>
           </div>
+
+          {/* Live Grocery List Bar (Appears when items are added) */}
+          {shoppingList.length > 0 && (
+            <div className="grocery-bar">
+              <div className="grocery-bar-top">
+                <span className="panel-title">
+                  🛒 Grocery List ({shoppingList.length} items)
+                </span>
+                <button
+                  type="button"
+                  className="clear-pantry-btn"
+                  onClick={() => setShoppingList([])}
+                >
+                  Clear List
+                </button>
+              </div>
+              <div className="grocery-tags">
+                {shoppingList.map((item) => (
+                  <span key={item} className="grocery-tag">
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
 
-        {processedRecipes.length > 0 ? (
+        {/* Responsive Recipe Grid or Friendly 'No recipes found' State */}
+        {visibleRecipes.length > 0 ? (
           <section className="recipe-grid" aria-label="Recipe collection">
-            {processedRecipes.map((recipe) => (
+            {visibleRecipes.map((recipe) => (
               <RecipeCard
                 key={recipe.id}
                 recipe={recipe}
                 matchScore={recipe.matchScore}
                 language={language}
-                isSaved={savedIds.includes(recipe.id)}
-                onToggleSave={toggleSave}
+                isSaved={favourites.includes(recipe.id)}
+                onToggleSave={toggleFavourite}
                 onOpenCookMode={openCookMode}
               />
             ))}
           </section>
         ) : (
-          <div className="empty-box">
-            <p>
-              No dishes match your current fridge items or ₹{maxBudget} budget.
+          <div className="empty-box" role="status">
+            <span className="empty-emoji">🍽️</span>
+            <h3 className="empty-title">No recipes found</h3>
+            <p className="empty-desc">
+              No dishes match your current search, category, favourites, or{" "}
+              {maxTime}-minute limit.
             </p>
             <button
               type="button"
               className="reset-btn"
-              onClick={() => {
-                setSearchQuery("");
-                setDietFilter("ALL");
-                setCategoryFilter("All");
-                setSelectedPantry([]);
-                setMaxBudget(200);
-              }}
+              onClick={resetAllFilters}
             >
               Reset All Filters
             </button>
@@ -283,6 +343,7 @@ function App() {
         )}
       </main>
 
+      {/* Guided Cooking Mode Modal */}
       {cookingRecipe && (
         <div className="kitchen-backdrop" onClick={closeCookMode}>
           <div className="kitchen-modal" onClick={(e) => e.stopPropagation()}>
@@ -290,6 +351,7 @@ function App() {
               type="button"
               className="close-modal-btn"
               onClick={closeCookMode}
+              aria-label="Close cooking guide"
             >
               ✕
             </button>
@@ -317,16 +379,33 @@ function App() {
                     : cookingRecipe.calories}
                 </span>
                 <span className="time-tag">
-                  💰 ~₹{cookingRecipe.costInr}/serving
+                  💰 ~₹{cookingRecipe.costInr * servings} ({servings}x)
                 </span>
               </div>
 
-              <h2 className="kitchen-title">
-                {language === "TA" && cookingRecipe.tamilName
-                  ? cookingRecipe.tamilName
-                  : cookingRecipe.name}
-              </h2>
+              <div className="modal-title-row">
+                <h2 className="kitchen-title">
+                  {language === "TA" && cookingRecipe.tamilName
+                    ? cookingRecipe.tamilName
+                    : cookingRecipe.name}
+                </h2>
 
+                {/* Serving Size Scaler */}
+                <div className="servings-scaler" aria-label="Servings multiplier">
+                  {[1, 2, 4].map((mult) => (
+                    <button
+                      key={mult}
+                      type="button"
+                      className={`serving-btn ${servings === mult ? "active" : ""}`}
+                      onClick={() => setServings(mult)}
+                    >
+                      {mult}x
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Recipe Remix Mode */}
               <div className="remix-box">
                 <span className="remix-label">🎛️ Recipe Remix Mode</span>
                 <div className="remix-pills">
@@ -376,6 +455,7 @@ function App() {
                 )}
               </div>
 
+              {/* Kitchen Countdown Timer */}
               <div className="timer-card">
                 <div>
                   <span className="timer-label">Kitchen Timer</span>
@@ -407,7 +487,17 @@ function App() {
                 </div>
               </div>
 
-              <p className="prep-hint">Tap ingredients below as you prep them:</p>
+              <div className="prep-header-row">
+                <p className="prep-hint">Tap ingredients as you prep them:</p>
+                <button
+                  type="button"
+                  className="clear-pantry-btn"
+                  onClick={() => addAllToShoppingList(cookingRecipe.ingredients)}
+                >
+                  + Add to Grocery List
+                </button>
+              </div>
+
               <IngredientList
                 ingredients={cookingRecipe.ingredients}
                 showAll={true}
