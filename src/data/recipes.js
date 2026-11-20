@@ -4,7 +4,7 @@ export const recipes = [
     name: "Crispy Masala Dosa & Chutney",
     tamilName: "மொறுமொறுப்பான மசாலா தோசை & தேங்காய் சட்னி",
     category: "Breakfast",
-    time: 30,
+    time: 25,
     veg: true,
     costInr: 45,
     calories: "320 kcal",
@@ -36,13 +36,13 @@ export const recipes = [
       healthy: {
         label: "Millet & Less Oil",
         calories: "250 kcal",
-        time: 25,
+        time: 20,
         swapNote: "Replaced white rice batter with Ragi-Millet batter and used cold-pressed sesame oil."
       },
       protein: {
         label: "Paneer Bhurji Stuffing",
         calories: "410 kcal",
-        time: 30,
+        time: 25,
         swapNote: "Added 100g grated spiced paneer inside the potato masala (+16g protein)."
       },
       quick: {
@@ -55,9 +55,63 @@ export const recipes = [
   },
   {
     id: 2,
+    name: "Hyderabadi Veg Dum Biryani",
+    tamilName: "ஹைதராபாத் காய்கறி தம் பிரியாணி",
+    category: "Lunch",
+    time: 45,
+    veg: true,
+    costInr: 85,
+    calories: "430 kcal",
+    macros: { protein: "11g", carbs: "68g", fat: "13g" },
+    pantryTags: ["rice", "potato", "carrot", "yogurt", "mint", "onion"],
+    image:
+      "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=900&q=80",
+    ingredients: [
+      "Aged long-grain Basmati rice",
+      "Diced carrots, beans & potatoes",
+      "Hung curd & fresh mint",
+      "Crispy golden fried onions",
+      "Saffron soaked in warm milk",
+      "Whole aromatic spices"
+    ],
+    steps: [
+      "Marinate mixed vegetables in yogurt, mint, fried onions, and biryani spices.",
+      "Parboil soaked Basmati rice with whole spices until 70% cooked.",
+      "Layer rice over marinated vegetables and drizzle saffron milk on top.",
+      "Seal tightly and cook on low dum heat for 20 minutes until fluffy."
+    ],
+    tamilSteps: [
+      "நறுக்கிய காய்கறிகளை தயிர், புதினா, வறுத்த வெங்காயம் மற்றும் மசாலாவுடன் ஊறவைக்கவும்.",
+      "ஊறவைத்த பாஸ்மதி அரிசியை முழு மசாலா பொருட்களுடன் 70% வேகவைக்கவும்.",
+      "காய்கறிகளின் மீது அரிசியைப் பரப்பி மேலே குங்குமப்பூ பால் ஊற்றவும்.",
+      "பாத்திரத்தை இறுக்கமாக மூடி குறைந்த தீயில் 20 நிமிடம் தம் போட்டு இறக்கவும்."
+    ],
+    remixes: {
+      healthy: {
+        label: "Brown Basmati & Cauliflower",
+        calories: "340 kcal",
+        time: 40,
+        swapNote: "50/50 riced cauliflower + Basmati rice with zero fried ghee."
+      },
+      protein: {
+        label: "Soya Chunk & Paneer Biryani",
+        calories: "470 kcal",
+        time: 45,
+        swapNote: "Added marinated soya chunks & paneer cubes (24g protein)."
+      },
+      quick: {
+        label: "15-Min Pressure Cooker Pulao",
+        calories: "410 kcal",
+        time: 15,
+        swapNote: "One-pot 2-whistle pressure cooker method with caramelized onions."
+      }
+    }
+  },
+  {
+    id: 3,
     name: "Paneer Butter Masala",
     tamilName: "பன்னீர் பட்டர் மசாலா",
-    category: "Main Course",
+    category: "Dinner",
     time: 35,
     veg: true,
     costInr: 110,
@@ -108,11 +162,11 @@ export const recipes = [
     }
   },
   {
-    id: 3,
+    id: 4,
     name: "Chettinad Pepper Chicken",
     tamilName: "செட்டிநாடு மிளகு கோழி வறுவல்",
-    category: "Main Course",
-    time: 45,
+    category: "Lunch",
+    time: 40,
     veg: false,
     costInr: 135,
     calories: "490 kcal",
@@ -162,10 +216,10 @@ export const recipes = [
     }
   },
   {
-    id: 4,
+    id: 5,
     name: "Sourdough Avocado Egg Toast",
     tamilName: "அவகேடோ & முட்டை டோஸ்ட்",
-    category: "Quick Bites",
+    category: "Breakfast",
     time: 15,
     veg: false,
     costInr: 95,
@@ -215,67 +269,13 @@ export const recipes = [
     }
   },
   {
-    id: 5,
-    name: "Hyderabadi Veg Dum Biryani",
-    tamilName: "ஹைதராபாத் காய்கறி தம் பிரியாணி",
-    category: "Main Course",
-    time: 50,
-    veg: true,
-    costInr: 85,
-    calories: "430 kcal",
-    macros: { protein: "11g", carbs: "68g", fat: "13g" },
-    pantryTags: ["rice", "potato", "carrot", "yogurt", "mint", "onion"],
-    image:
-      "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=900&q=80",
-    ingredients: [
-      "Aged long-grain Basmati rice",
-      "Diced carrots, beans & potatoes",
-      "Hung curd & fresh mint",
-      "Crispy golden fried onions",
-      "Saffron soaked in warm milk",
-      "Whole aromatic spices"
-    ],
-    steps: [
-      "Marinate mixed vegetables in yogurt, mint, fried onions, and biryani spices.",
-      "Parboil soaked Basmati rice with whole spices until 70% cooked.",
-      "Layer rice over marinated vegetables and drizzle saffron milk on top.",
-      "Seal tightly and cook on low dum heat for 20 minutes until fluffy."
-    ],
-    tamilSteps: [
-      "நறுக்கிய காய்கறிகளை தயிர், புதினா, வறுத்த வெங்காயம் மற்றும் மசாலாவுடன் ஊறவைக்கவும்.",
-      "ஊறவைத்த பாஸ்மதி அரிசியை முழு மசாலா பொருட்களுடன் 70% வேகவைக்கவும்.",
-      "காய்கறிகளின் மீது அரிசியைப் பரப்பி மேலே குங்குமப்பூ பால் ஊற்றவும்.",
-      "பாத்திரத்தை இறுக்கமாக மூடி குறைந்த தீயில் 20 நிமிடம் தம் போட்டு இறக்கவும்."
-    ],
-    remixes: {
-      healthy: {
-        label: "Brown Basmati & Cauliflower",
-        calories: "340 kcal",
-        time: 45,
-        swapNote: "50/50 riced cauliflower + Basmati rice with zero fried ghee."
-      },
-      protein: {
-        label: "Soya Chunk & Paneer Biryani",
-        calories: "470 kcal",
-        time: 45,
-        swapNote: "Added marinated soya chunks & paneer cubes (24g protein)."
-      },
-      quick: {
-        label: "15-Min Pressure Cooker Pulao",
-        calories: "410 kcal",
-        time: 15,
-        swapNote: "One-pot 2-whistle pressure cooker method with caramelized onions."
-      }
-    }
-  },
-  {
     id: 6,
     name: "Herb Garlic Butter Salmon",
     tamilName: "பூண்டு & மூலிகை சால்மன் வறுவல்",
-    category: "Quick Bites",
+    category: "Dinner",
     time: 20,
     veg: false,
-    costInr: 190,
+    costInr: 185,
     calories: "410 kcal",
     macros: { protein: "34g", carbs: "4g", fat: "28g" },
     pantryTags: ["fish", "garlic", "butter", "lemon"],
@@ -378,7 +378,7 @@ export const recipes = [
     id: 8,
     name: "Mediterranean Chickpea Bowl",
     tamilName: "கொண்டைக்கடலை காய்கறி சாலட் பவுல்",
-    category: "Breakfast",
+    category: "Lunch",
     time: 18,
     veg: true,
     costInr: 60,
