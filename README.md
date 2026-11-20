@@ -41,6 +41,7 @@ A clean, responsive recipe showcase with prop-driven components, dietary filteri
 
 - [About](#-about)
 - [Features](#-features)
+- [Key Features](#-key-features)
 - [Tech Stack](#-tech-stack)
 - [Architecture](#-architecture)
 - [Project Structure](#-project-structure)
@@ -70,6 +71,23 @@ A clean, responsive recipe showcase with prop-driven components, dietary filteri
 | 📐 **Uniform cards** | Ingredient lists are capped at 4 items with a `+X more...` note, so every row stays aligned |
 | 📱 **Responsive grid** | CSS Grid with `auto-fill, minmax(290px, 1fr)` adapts across mobile, tablet and desktop |
 | ⚡ **Easily extensible** | Add one object to `recipes.js` and a new card appears automatically |
+
+---
+
+## ✨ Key Features
+
+### Week 1 Foundation
+- **Component Architecture:** Modular `Header`, `RecipeCard`, and `IngredientList` components with clean props flow.
+- **Dynamic Rendering:** Recipes rendered via `.map()` with unique `id` keys and dietary `🟢 Veg` / `🔴 Non-veg` badges.
+- **Interactive 3D Dish Showcase:** WebGL turntable viewer in the hero header + 3D flip cards revealing macronutrients and preparation previews.
+
+### Week 2 State & Interactivity
+- **Live Case-Insensitive Search:** Controlled `useState` search input filtering across English dish names, Tamil dish names, and ingredients in real time.
+- **Multi-Category Filtering:** Interactive `All`, `Breakfast`, `Lunch`, `Dinner`, and `Dessert` category pills that work simultaneously with search and dietary filters.
+- **Favourites Management & Persistence:** Toggle heart (`❤️` / `🤍`) icons on any recipe card, filter strictly with the **Show Favourites Only** switch, and persist saved favourites via `localStorage`.
+- **Max Cooking Time & Budget Sliders (Stretch Goal):** Dynamically hide recipes exceeding your chosen cooking time (`15m–60m`) or per-serving cost (`₹45–₹200`).
+- **Derived State & Empty State UX:** Computes `visibleRecipes` directly during render via `.filter(...)` and displays a friendly **No recipes found** card with a one-click reset button when filters match nothing.
+- **Guided Cooking Studio:** Includes a live countdown timer, **Recipe Remix Engine** (`Classic`, `Healthy`, `High-Protein`, `Quick`), **Serving Scaler** (`1x`, `2x`, `4x`), **Fridge-to-Recipe Matcher**, **Grocery List Builder**, and **🎲 Surprise Me** random dish selector.
 
 ---
 
