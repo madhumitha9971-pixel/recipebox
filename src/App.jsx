@@ -12,10 +12,17 @@ function App() {
   const [darkMode, setDarkMode] = useState(true);
   const [language, setLanguage] = useState("EN");
 
-  // Week 2 Required State: search, category, favourites, favouritesOnly, maxTime
+  // Week 2 Required State (with localStorage persistence for favourites)
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
-  const [favourites, setFavourites] = useState([1, 3]);
+  const [favourites, setFavourites] = useState(() => {
+    try {
+      const saved = localStorage.getItem("recipebox_favourites");
+      return saved ? JSON.parse(saved) : [1, 3];
+    } catch {
+      return [1, 3];
+    }
+  });
   const [showFavouritesOnly, setShowFavouritesOnly] = useState(false);
   const [dietFilter, setDietFilter] = useState("ALL");
   const [selectedPantry, setSelectedPantry] = useState([]);
@@ -32,6 +39,15 @@ function App() {
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [timerRunning, setTimerRunning] = useState(false);
 
+  // Persist favourites in localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem("recipebox_favourites", JSON.stringify(favourites));
+    } catch {
+      // Ignore storage quota errors
+    }
+  }, [favourites]);
+
   // Countdown Timer Effect
   useEffect(() => {
     if (!timerRunning || secondsLeft <= 0) return;
@@ -47,7 +63,6 @@ function App() {
     return () => clearInterval(interval);
   }, [timerRunning, secondsLeft]);
 
-  // Toggle favourite ID in state (Week 2 requirement)
   const toggleFavourite = (id) => {
     setFavourites((prev) =>
       prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
@@ -106,7 +121,7 @@ function App() {
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
-  // Derive visibleRecipes during render using .filter(...) (Week 2 best practice)
+  // Derive visibleRecipes during render using .filter(...)
   const visibleRecipes = recipes
     .map((recipe) => {
       if (selectedPantry.length === 0) {
@@ -156,6 +171,12 @@ function App() {
     })
     .sort((a, b) => b.matchScore - a.matchScore);
 
+  const handleSurpriseMe = () => {
+    if (visibleRecipes.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * visibleRecipes.length);
+    openCookMode(visibleRecipes[randomIndex]);
+  };
+
   const resetAllFilters = () => {
     setSearch("");
     setCategory("All");
@@ -188,7 +209,6 @@ function App() {
       />
 
       <main className="main-content">
-        {/* Fridge Rescue, Max Cooking Time Slider & Max Budget Slider */}
         <SmartKitchenTools
           selectedPantry={selectedPantry}
           onTogglePantry={togglePantry}
@@ -201,7 +221,6 @@ function App() {
           onToggleLanguage={setLanguage}
         />
 
-        {/* Week 2 Interactive Search, Category & Favourites Toolbar */}
         <section className="toolbar" aria-label="Search and filter recipes">
           <div className="search-row">
             <div className="search-wrap">
@@ -226,7 +245,6 @@ function App() {
               )}
             </div>
 
-            {/* Dedicated Week 2 'Show Favourites Only' Toggle */}
             <button
               type="button"
               className={`fav-toggle-btn ${showFavouritesOnly ? "active" : ""}`}
@@ -236,10 +254,19 @@ function App() {
               {showFavouritesOnly ? "❤️ Showing Favourites" : "🤍 Show Favourites Only"} (
               {favourites.length})
             </button>
+
+            {visibleRecipes.length > 0 && (
+              <button
+                type="button"
+                className="fav-toggle-btn"
+                onClick={handleSurpriseMe}
+              >
+                🎲 Surprise Me
+              </button>
+            )}
           </div>
 
           <div className="filters-wrap">
-            {/* Required Week 2 Category Buttons: All, Breakfast, Lunch, Dinner, Dessert */}
             <div className="pill-group" role="group" aria-label="Meal categories">
               {CATEGORIES.map((cat) => (
                 <button
@@ -253,7 +280,6 @@ function App() {
               ))}
             </div>
 
-            {/* Veg / Non-Veg Dietary Filter */}
             <div className="pill-group" role="group" aria-label="Dietary preference">
               <button
                 type="button"
@@ -283,7 +309,6 @@ function App() {
             </div>
           </div>
 
-          {/* Live Grocery List Bar (Appears when items are added) */}
           {shoppingList.length > 0 && (
             <div className="grocery-bar">
               <div className="grocery-bar-top">
@@ -309,7 +334,6 @@ function App() {
           )}
         </section>
 
-        {/* Responsive Recipe Grid or Friendly 'No recipes found' State */}
         {visibleRecipes.length > 0 ? (
           <section className="recipe-grid" aria-label="Recipe collection">
             {visibleRecipes.map((recipe) => (
@@ -343,7 +367,6 @@ function App() {
         )}
       </main>
 
-      {/* Guided Cooking Mode Modal */}
       {cookingRecipe && (
         <div className="kitchen-backdrop" onClick={closeCookMode}>
           <div className="kitchen-modal" onClick={(e) => e.stopPropagation()}>
@@ -390,7 +413,6 @@ function App() {
                     : cookingRecipe.name}
                 </h2>
 
-                {/* Serving Size Scaler */}
                 <div className="servings-scaler" aria-label="Servings multiplier">
                   {[1, 2, 4].map((mult) => (
                     <button
@@ -405,7 +427,6 @@ function App() {
                 </div>
               </div>
 
-              {/* Recipe Remix Mode */}
               <div className="remix-box">
                 <span className="remix-label">🎛️ Recipe Remix Mode</span>
                 <div className="remix-pills">
@@ -455,7 +476,6 @@ function App() {
                 )}
               </div>
 
-              {/* Kitchen Countdown Timer */}
               <div className="timer-card">
                 <div>
                   <span className="timer-label">Kitchen Timer</span>
