@@ -4,26 +4,22 @@ function IngredientList({
   checkedItems = [],
   onToggleItem
 }) {
-  const MAX_VISIBLE = 4;
-  const visibleItems = showAll ? ingredients : ingredients.slice(0, MAX_VISIBLE);
-  const remaining = ingredients.length - MAX_VISIBLE;
+  const visibleIngredients = showAll ? ingredients : ingredients.slice(0, 3);
+  const remainingCount = ingredients.length - 3;
 
   return (
     <div className="ingredients-block">
       <div className="ingredients-top">
-        <span className="ingredients-label">Ingredients</span>
+        <span className="ingredients-label">Key Ingredients</span>
         <span className="ingredients-total">{ingredients.length} items</span>
       </div>
 
       <ul className="ingredient-ul">
-        {visibleItems.map((item, index) => {
+        {visibleIngredients.map((item, index) => {
           const isChecked = checkedItems.includes(item);
           return (
             <li
               key={`${item}-${index}`}
-              className={`ingredient-li ${isChecked ? "is-checked" : ""} ${
-                onToggleItem ? "is-clickable" : ""
-              }`}
               onClick={
                 onToggleItem
                   ? (e) => {
@@ -32,19 +28,20 @@ function IngredientList({
                     }
                   : undefined
               }
+              className={`ingredient-li ${onToggleItem ? "is-clickable" : ""} ${
+                isChecked ? "is-checked" : ""
+              }`}
             >
-              <span className="ingredient-marker" aria-hidden="true">
-                {onToggleItem ? (isChecked ? "✓" : "○") : "•"}
+              <span className="ingredient-marker">
+                {onToggleItem ? (isChecked ? "☑" : "☐") : "•"}
               </span>
               <span>{item}</span>
             </li>
           );
         })}
 
-        {!showAll && remaining > 0 && (
-          <li className="ingredient-more">
-            +{remaining} more...
-          </li>
+        {!showAll && remainingCount > 0 && (
+          <li className="ingredient-more">+{remainingCount} more...</li>
         )}
       </ul>
     </div>
