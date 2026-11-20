@@ -15,6 +15,8 @@ function SmartKitchenTools({
   selectedPantry,
   onTogglePantry,
   onClearPantry,
+  maxTime,
+  onTimeChange,
   maxBudget,
   onBudgetChange,
   language,
@@ -24,13 +26,12 @@ function SmartKitchenTools({
     <section className="smart-studio" aria-label="Smart Kitchen Assistant">
       <div className="studio-top-row">
         <div>
-          <span className="studio-badge">✨ Kitchen Assistant</span>
+          <span className="studio-badge">✨ Kitchen Planner</span>
           <h2 className="studio-heading">
-            Fridge Rescue & Budget Planner
+            Fridge Rescue, Time & Budget Controls
           </h2>
         </div>
 
-        {/* Regional Tamil / English Language Toggle */}
         <div className="lang-switch" role="group" aria-label="Recipe Language">
           <button
             type="button"
@@ -49,13 +50,11 @@ function SmartKitchenTools({
         </div>
       </div>
 
-      <div className="studio-grid">
-        {/* Left: Fridge-to-Recipe Ingredient Picker */}
+      <div className="studio-grid-3">
+        {/* 1. Fridge-to-Recipe Ingredient Picker */}
         <div className="studio-panel">
           <div className="panel-head">
-            <span className="panel-title">
-              🧊 What’s in your fridge? (Tap to match)
-            </span>
+            <span className="panel-title">🧊 Fridge Ingredients</span>
             {selectedPantry.length > 0 && (
               <button
                 type="button"
@@ -84,10 +83,35 @@ function SmartKitchenTools({
           </div>
         </div>
 
-        {/* Right: Smart Budget Chef Slider */}
-        <div className="studio-panel budget-panel">
+        {/* 2. Week 2 Stretch Goal: Max Cooking Time Slider */}
+        <div className="studio-panel">
           <div className="panel-head">
-            <span className="panel-title">💰 Max Budget per Serving</span>
+            <span className="panel-title">⏱ Max Cooking Time</span>
+            <span className="budget-readout">{maxTime} mins</span>
+          </div>
+
+          <input
+            type="range"
+            min="15"
+            max="60"
+            step="5"
+            value={maxTime}
+            onChange={(e) => onTimeChange(Number(e.target.value))}
+            className="budget-slider"
+            aria-label="Maximum cooking time in minutes"
+          />
+
+          <div className="budget-scale">
+            <span>15m Quick</span>
+            <span>30m Mid</span>
+            <span>60m All</span>
+          </div>
+        </div>
+
+        {/* 3. Smart Budget Chef Slider */}
+        <div className="studio-panel">
+          <div className="panel-head">
+            <span className="panel-title">💰 Max Cost / Serving</span>
             <span className="budget-readout">₹{maxBudget} (est.)</span>
           </div>
 
@@ -103,8 +127,8 @@ function SmartKitchenTools({
           />
 
           <div className="budget-scale">
-            <span>₹45 Street/Home</span>
-            <span>₹100 Balanced</span>
+            <span>₹45 Saver</span>
+            <span>₹100 Daily</span>
             <span>₹200 Feast</span>
           </div>
         </div>
